@@ -1,0 +1,112 @@
+version: "3.9"
+
+services:
+  #========= Databases =========
+  auth-db:
+    image: postgres:16-alpine
+    container_name: ghabetna_auth_db
+    environment:
+      POSTGRES_USER: ${AUTH_DB_USER}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+      POSTGRES_DB: ${AUTH_DB_NAME}
+    ports:
+      - "${AUTH_DB_PORT}:5432"
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AUTH_DB_USER} -d ${AUTH_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  forest-db:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: ghabetna_forest_db
+    environment:
+      POSTGRES_USER: ${FOREST_DB_USER}
+      POSTGRES_PASSWORD: ${FOREST_DB_PASSWORD}
+      POSTGRES_DB: ${FOREST_DB_NAME}
+    ports:
+      - "${FOREST_DB_PORT}:5432"
+    volumes:
+      - forest_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${FOREST_DB_USER} -d ${FOREST_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: ghabetna_redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+#========= Services =========
+  auth-service:
+    build: ./services/auth_service
+    container_name: ghabetna_auth_service
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${AUTH_DB_USER}:${AUTH_DB_PASSWORD}@auth-db:5432/${AUTH_DB_NAME}
+      DATABASE_URL_SYNC: postgresql+psycopg2://${AUTH_DB_USER}:${AUTH_DB_PASSWORD}@auth-db:5432/${AUTH_DB_NAME}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      auth-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./services/auth_service:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+  
+  forest-service:
+    build: ./services/forest_service
+    container_name: ghabetna_forest_service
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${FOREST_DB_USER}:${FOREST_DB_PASSWORD}@forest-db:5432/${FOREST_DB_NAME}
+      DATABASE_URL_SYNC: postgresql+psycopg2://${FOREST_DB_USER}:${FOREST_DB_PASSWORD}@forest-db:5432/${FOREST_DB_NAME}
+      REDIS_URL: redis://redis:6379/1
+    depends_on:
+      forest-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./services/forest_service:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  api-gateway:
+    build: ./services/api_gateway/
+    container_name: ghabetna_api_gateway
+    env_file: .env
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8000
+      FOREST_SERVICE_URL: http://forest-service:8000
+    depends_on:
+      - auth-service
+      - forest-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./services/api_gateway:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  auth_db_data:
+  forest_db_data:
+  redis_data:
+
+
