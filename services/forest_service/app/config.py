@@ -10,22 +10,13 @@ class Settings(BaseSettings):
         env_file=env_path,
         extra="allow"
     )
-
-    AUTH_DATABASE_URL: str           
-    AUTH_DATABASE_URL_SYNC: str     
-    REDIS_URL: str = "redis://localhost:6379/0"
+    FOREST_DATABASE_URL: str           
+    FOREST_DATABASE_URL_SYNC: str     
+    REDIS_URL: str = "redis://localhost:6379/1"
     
     JWT_SECRET: str
     JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
-    MAIL_USERNAME: str
-    MAIL_PASSWORD: str
-    MAIL_FROM: str
-    MAIL_SERVER: str = "smtp.gmail.com"
-    MAIL_PORT: int = 587
-    FRONTEND_URL: str = "http://localhost:3000"
 
 print(env_path.exists())
 settings = Settings()
-print(settings.AUTH_DATABASE_URL)
+print(settings.FOREST_DATABASE_URL)

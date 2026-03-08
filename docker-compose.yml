@@ -55,8 +55,8 @@ services:
     container_name: ghabetna_auth_service
     env_file: .env
     environment:
-      DATABASE_URL: postgresql+asyncpg://${AUTH_DB_USER}:${AUTH_DB_PASSWORD}@auth-db:5432/${AUTH_DB_NAME}
-      DATABASE_URL_SYNC: postgresql+psycopg2://${AUTH_DB_USER}:${AUTH_DB_PASSWORD}@auth-db:5432/${AUTH_DB_NAME}
+      AUTH_DATABASE_URL: postgresql+asyncpg://${AUTH_DB_USER}:${AUTH_DB_PASSWORD}@auth-db:5432/${AUTH_DB_NAME}
+      AUTH_DATABASE_URL_SYNC: postgresql+psycopg2://${AUTH_DB_USER}:${AUTH_DB_PASSWORD}@auth-db:5432/${AUTH_DB_NAME}
       REDIS_URL: redis://redis:6379/0
     depends_on:
       auth-db:
@@ -74,8 +74,8 @@ services:
     container_name: ghabetna_forest_service
     env_file: .env
     environment:
-      DATABASE_URL: postgresql+asyncpg://${FOREST_DB_USER}:${FOREST_DB_PASSWORD}@forest-db:5432/${FOREST_DB_NAME}
-      DATABASE_URL_SYNC: postgresql+psycopg2://${FOREST_DB_USER}:${FOREST_DB_PASSWORD}@forest-db:5432/${FOREST_DB_NAME}
+      FOREST_DATABASE_URL: postgresql+asyncpg://${FOREST_DB_USER}:${FOREST_DB_PASSWORD}@forest-db:5432/${FOREST_DB_NAME}
+      FOREST_DATABASE_URL_SYNC: postgresql+psycopg2://${FOREST_DB_USER}:${FOREST_DB_PASSWORD}@forest-db:5432/${FOREST_DB_NAME}
       REDIS_URL: redis://redis:6379/1
     depends_on:
       forest-db:

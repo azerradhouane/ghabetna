@@ -3,13 +3,13 @@ from sqlalchemy.orm import DeclarativeBase
 from app.config import settings
 from typing import AsyncGenerator
 
-engine=create_async_engine(settings.AUTH_DATABASE_URL,echo=False,pool_pre_ping=True)
+engine=create_async_engine(settings.FOREST_DATABASE_URL,echo=False,pool_pre_ping=True)
 AsyncSessionLocal=async_sessionmaker(engine,class_=AsyncSession,expire_on_commit=False)
 
 class Base(DeclarativeBase):
     pass
 
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
+async def get_db()->AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
         try:
             yield session
