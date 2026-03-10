@@ -30,7 +30,7 @@ async def get_forest(
 ):
     return await forest_service.get_forest(forest_id,db)
 
-@router.put("/{forest_id}",response_model=ForestCreate)
+@router.put("/{forest_id}",response_model=ForestReponse)
 async def update_forest(
     forest_id:int,
     data:ForestUpdate,

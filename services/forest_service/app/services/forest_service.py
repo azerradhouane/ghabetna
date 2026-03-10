@@ -1,6 +1,6 @@
 from fastapi import HTTPException,status
 from geoalchemy2.shape import from_shape,to_shape
-from shapely.geometry import shape,mapping,Point
+from shapely.geometry import mapping,Point
 from sqlalchemy import select,text
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.forest import Forest
@@ -93,7 +93,7 @@ async def update_forest(forest_id:int, data:ForestUpdate, db:AsyncSession)->Fore
         )
         forest.area_hectars=area_result.scalar()
     if data.center_lat is not None and data.center_lng is not None:
-        forest.center_point=from_shape(Point(data.center_lng,data.center_lat))
+        forest.center_point=from_shape(Point(data.center_lng,data.center_lat),srid=4326)
 
     await db.commit()
     await db.refresh(forest)
