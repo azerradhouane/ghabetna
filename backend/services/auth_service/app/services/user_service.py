@@ -16,7 +16,13 @@ async def create_user(data: UserCreate,db:AsyncSession)->User:
     if not role_result.scalar_one_or_none():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Role Not Found")
     
-    user=User(email=data.email,full_name=data.full_name,role_id=data.role_id)
+    if data.service_id is not None:
+        from app.models.service import Service
+        svc_result=await db.execute(select(Service).where(Service.id==data.service_id))
+        if not svc_result.scalar_one_or_none():
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Service Not Found")
+    
+    user=User(email=data.email,full_name=data.full_name,role_id=data.role_id,service_id=data.service_id)
     token=user.generate_activation_token()
     user.activation_token_expires=datetime.now(timezone.utc)+timedelta(hours=48)
     

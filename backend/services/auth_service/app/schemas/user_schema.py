@@ -5,6 +5,7 @@ class UserCreate(BaseModel):
     email:EmailStr
     full_name:str
     role_id:int
+    service_id:int|None=None
 
 class UserUpdate(BaseModel):
     full_name:str|None=None

@@ -15,6 +15,10 @@ async def list_partiels(forest_id:int,db:AsyncSession=Depends(get_db),_=Depends(
 async def create_partiel(forest_id:int,data:PartielCreate,db:AsyncSession=Depends(get_db),_=Depends(require_permission("partiel:create"))):
     return await partiel_service.create_partiel(forest_id,data,db)
 
+@router.get("/{partiel_id}",response_model=PartielResponse)
+async def get_partiel(partiel_id:int,paritel_id,db:AsyncSession=Depends(get_db),_=Depends(require_permission("partiel:read"))):
+    return await partiel_service.get_partiel(partiel_id,db)
+
 @router.put("/{partiel_id}",response_model=PartielResponse)
 async def update_partiel(forest_id:int,partiel_id:int,data:PartielUpdate,db:AsyncSession=Depends(get_db),_=Depends(require_permission("partiel:update"))):
     return await partiel_service.update_partiel(partiel_id,data,db)

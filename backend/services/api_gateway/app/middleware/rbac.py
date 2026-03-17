@@ -8,6 +8,11 @@ Checks permissions for protected routes.
 Public routes bypass auth entirely.
 """
 
+SELF_ROUTES={
+    ("GET","/api/users/me"),
+    ("PUT","/api/users/me"),
+}
+
 PUBLIC_ROUTES={
     ("POST","/api/auth/login"),
     ("POST", "/api/auth/refresh"),
@@ -46,6 +51,11 @@ PARTIEL_PERMISSIONS = {
 }
 
 def _get_required_permission(method: str, path: str) -> str | None:
+
+    # Self routes are authenticated but no specific permission required
+    if (method,path) in SELF_ROUTES:
+        return None
+
     # Check partiels first — more specific, avoids collision with /api/forests prefix
     if "/partiels" in path:
         return PARTIEL_PERMISSIONS.get(method)

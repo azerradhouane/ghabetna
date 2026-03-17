@@ -29,6 +29,11 @@ async def users_root(request:Request):
     payload=await verify_and_inject(request)
     return await _proxy("",request,payload)
 
+@router.api_route("/me",methods=["GET","PUT"])
+async def users_me(request:Request):
+    payload=await verify_and_inject(request)
+    return await _proxy("/me",request,payload)
+
 @router.api_route("/{user_id}",methods=["GET","PUT","DELETE"])
 async def users_by_id(user_id:int,request:Request):
     payload=await verify_and_inject(request)
